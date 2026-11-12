@@ -1,0 +1,885 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#0b1423" />
+  <title>Khám phá cấu trúc tế bào động vật</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #091321;
+      --panel: #101e30;
+      --panel-2: #13243a;
+      --panel-3: #182c43;
+      --line: rgba(174, 205, 229, .12);
+      --line-strong: rgba(174, 205, 229, .2);
+      --text: #edf5fb;
+      --muted: #9db0c4;
+      --soft: #70869d;
+      --cyan: #63d8d1;
+      --blue: #6ca9ff;
+      --purple: #c2a0ff;
+      --gold: #f0c578;
+      --green: #83d6a6;
+      --danger: #ff9b9b;
+      --radius: 18px;
+      --shadow: 0 18px 40px rgba(0, 0, 0, .18);
+    }
+    * { box-sizing: border-box; }
+    html, body { min-height: 100%; }
+    body {
+      margin: 0;
+      background:
+        radial-gradient(ellipse at 49% -25%, rgba(48, 105, 129, .2), transparent 48%),
+        linear-gradient(155deg, #0b1728, var(--bg) 62%);
+      color: var(--text);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+    button, input, select { font: inherit; }
+    button { color: inherit; }
+    .app-shell { max-width: 1800px; margin: 0 auto; padding: 18px 20px 20px; }
+    .topbar {
+      display: flex; align-items: center; justify-content: space-between; gap: 16px;
+      padding: 4px 2px 17px; border-bottom: 1px solid var(--line); margin-bottom: 16px;
+    }
+    .brand { display: flex; align-items: center; gap: 12px; min-width: 0; }
+    .brand-mark {
+      width: 42px; height: 42px; flex: 0 0 auto; border-radius: 14px;
+      display: grid; place-items: center; font-size: 20px;
+      color: #071a27; background: linear-gradient(145deg, #7ce5d8, #6ea9ff);
+      box-shadow: 0 8px 22px rgba(95, 207, 203, .18);
+    }
+    .brand h1 { margin: 0; font-size: clamp(16px, 1.8vw, 21px); letter-spacing: -.025em; line-height: 1.2; }
+    .brand p { margin: 4px 0 0; color: var(--muted); font-size: 12px; }
+    .top-actions { display: flex; align-items: center; gap: 8px; flex: 0 0 auto; }
+    .status-pill, .soft-pill {
+      display: inline-flex; align-items: center; gap: 7px; border: 1px solid var(--line);
+      border-radius: 999px; padding: 7px 11px; color: var(--muted); background: rgba(18, 35, 54, .75);
+      font-size: 11px; white-space: nowrap;
+    }
+    .status-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--green); box-shadow: 0 0 0 3px rgba(131,214,166,.1); }
+    .btn {
+      border: 1px solid var(--line-strong); background: rgba(24, 44, 67, .82); color: var(--text);
+      border-radius: 11px; padding: 9px 12px; cursor: pointer; transition: background .16s ease, border-color .16s ease, transform .16s ease;
+      display: inline-flex; align-items: center; justify-content: center; gap: 7px; font-weight: 600; font-size: 12px;
+    }
+    .btn:hover { background: #203952; border-color: rgba(99,216,209,.4); }
+    .btn:active { transform: translateY(1px); }
+    .btn:focus-visible, input:focus-visible, select:focus-visible, .organ-item:focus-visible { outline: 2px solid var(--cyan); outline-offset: 2px; }
+    .btn.primary { color: #06202a; background: linear-gradient(135deg, #7ce5d8, #86b9ff); border: 0; }
+    .btn.primary:hover { filter: brightness(1.06); }
+    .btn.ghost { background: transparent; }
+    .btn.small { padding: 7px 10px; font-size: 11px; }
+    .btn.icon-only { width: 36px; height: 36px; padding: 0; font-size: 16px; }
+    .workspace {
+      display: grid;
+      grid-template-columns: minmax(205px, 238px) minmax(340px, 1fr) minmax(250px, 300px);
+      grid-template-areas: "organs stage info" "dock dock dock";
+      gap: 14px; align-items: stretch;
+    }
+    .panel {
+      background: linear-gradient(155deg, rgba(20, 37, 57, .96), rgba(13, 27, 43, .96));
+      border: 1px solid var(--line); border-radius: var(--radius); box-shadow: var(--shadow); min-width: 0;
+    }
+    .organ-panel { grid-area: organs; padding: 15px 12px 12px; display: flex; flex-direction: column; min-height: 590px; }
+    .panel-heading { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin: 0 2px 11px; }
+    .panel-heading h2 { font-size: 13px; letter-spacing: .02em; margin: 0; }
+    .eyebrow { text-transform: uppercase; letter-spacing: .13em; color: var(--soft); font-size: 9px; font-weight: 800; }
+    .count { color: var(--soft); font-size: 10px; }
+    .search-wrap { position: relative; margin-bottom: 10px; }
+    .search-wrap span { position: absolute; left: 11px; top: 9px; color: var(--soft); font-size: 14px; pointer-events: none; }
+    .search-wrap input {
+      width: 100%; color: var(--text); background: rgba(5, 15, 27, .46); border: 1px solid var(--line);
+      border-radius: 10px; padding: 9px 10px 9px 32px; outline: none; font-size: 12px;
+    }
+    .search-wrap input::placeholder { color: #71869b; }
+    .organ-list { display: flex; flex-direction: column; gap: 4px; overflow-y: auto; min-height: 0; padding-right: 3px; }
+    .organ-list::-webkit-scrollbar, .info-scroll::-webkit-scrollbar { width: 5px; }
+    .organ-list::-webkit-scrollbar-thumb, .info-scroll::-webkit-scrollbar-thumb { background: rgba(157,176,196,.2); border-radius: 10px; }
+    .organ-item {
+      width: 100%; display: flex; align-items: center; gap: 9px; text-align: left; cursor: pointer;
+      border: 1px solid transparent; border-radius: 10px; background: transparent; padding: 8px 8px; color: var(--text);
+      min-height: 42px; transition: background .14s ease, border-color .14s ease;
+    }
+    .organ-item:hover { background: rgba(115, 158, 194, .08); }
+    .organ-item.active { background: rgba(99,216,209,.1); border-color: rgba(99,216,209,.25); }
+    .organ-dot { width: 9px; height: 9px; border-radius: 50%; flex: 0 0 auto; box-shadow: 0 0 0 3px rgba(255,255,255,.035); }
+    .organ-label { min-width: 0; flex: 1; }
+    .organ-label b { display: block; font-size: 11px; font-weight: 650; line-height: 1.25; }
+    .organ-label small { color: var(--soft); display: block; font-size: 9px; margin-top: 2px; }
+    .organ-chevron { color: #60778f; font-size: 16px; }
+    .side-tools { margin-top: auto; padding-top: 11px; border-top: 1px solid var(--line); display: grid; gap: 8px; }
+    .toggle-row { display: flex; justify-content: space-between; align-items: center; gap: 8px; color: var(--muted); font-size: 11px; padding: 1px 2px; }
+    .switch { position: relative; width: 34px; height: 19px; flex: 0 0 auto; }
+    .switch input { opacity: 0; width: 0; height: 0; position: absolute; }
+    .switch-track { position: absolute; inset: 0; border-radius: 999px; background: #31445a; cursor: pointer; transition: .2s; }
+    .switch-track::after { content: ""; position: absolute; width: 13px; height: 13px; left: 3px; top: 3px; border-radius: 50%; background: #d6e3ef; transition: .2s; }
+    .switch input:checked + .switch-track { background: #327f83; }
+    .switch input:checked + .switch-track::after { transform: translateX(15px); background: #fff; }
+    .stage-panel { grid-area: stage; padding: 13px; min-width: 0; display: flex; flex-direction: column; }
+    .stage-toolbar { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 1px 2px 12px; }
+    .stage-toolbar h2 { margin: 0; font-size: 13px; }
+    .stage-toolbar p { margin: 3px 0 0; color: var(--muted); font-size: 10px; }
+    .stage-actions { display: flex; gap: 6px; align-items: center; }
+    .stage-view {
+      position: relative; min-height: 470px; height: clamp(470px, 54vw, 620px); overflow: hidden;
+      border: 1px solid rgba(130,174,205,.15); border-radius: 15px;
+      background:
+        radial-gradient(ellipse at 50% 45%, rgba(39, 91, 111, .2), transparent 53%),
+        radial-gradient(circle at 50% 50%, rgba(29,54,76,.42), rgba(7,18,31,.55) 70%);
+      isolation: isolate;
+    }
+    .stage-view::before {
+      content: ""; position: absolute; inset: 0; z-index: 0; pointer-events: none; opacity: .18;
+      background-image: linear-gradient(rgba(135,177,204,.12) 1px, transparent 1px), linear-gradient(90deg, rgba(135,177,204,.12) 1px, transparent 1px);
+      background-size: 42px 42px; mask-image: radial-gradient(ellipse at center, #000 15%, transparent 80%);
+    }
+    #cellCanvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; z-index: 1; touch-action: none; cursor: grab; }
+    #cellCanvas:active { cursor: grabbing; }
+    .label-layer { position: absolute; inset: 0; z-index: 2; pointer-events: none; overflow: hidden; }
+    .model-label {
+      position: absolute; transform: translate(-50%, -50%); color: #e8f8fb; white-space: nowrap; font-size: 9px;
+      letter-spacing: .01em; border: 1px solid rgba(134,220,215,.34); border-radius: 7px; background: rgba(7, 22, 35, .86);
+      padding: 4px 7px; box-shadow: 0 4px 12px rgba(0,0,0,.2); pointer-events: auto; cursor: pointer;
+    }
+    .model-label:hover { background: #164352; }
+    .model-label.hidden { display: none; }
+    .view-badge { position: absolute; left: 13px; top: 12px; z-index: 3; pointer-events: none; }
+    .view-badge .soft-pill { background: rgba(9,22,36,.7); backdrop-filter: blur(5px); }
+    .canvas-controls { position: absolute; right: 12px; top: 12px; z-index: 4; display: flex; flex-direction: column; gap: 6px; }
+    .canvas-controls .btn { background: rgba(11,25,40,.82); backdrop-filter: blur(5px); width: 34px; height: 34px; padding: 0; }
+    .canvas-hint { position: absolute; bottom: 12px; left: 13px; z-index: 3; color: rgba(198,218,234,.72); font-size: 10px; pointer-events: none; text-shadow: 0 1px 4px #061321; }
+    .canvas-state { position: absolute; bottom: 12px; right: 13px; z-index: 3; color: #9eb8cb; font-size: 10px; pointer-events: none; }
+    .fallback { position: absolute; inset: 0; z-index: 5; display: none; padding: 30px; place-items: center; text-align: center; background: #0d1b2b; }
+    .fallback.show { display: grid; }
+    .fallback-inner { max-width: 410px; }
+    .fallback-icon { font-size: 36px; margin-bottom: 12px; }
+    .fallback h3 { margin: 0 0 7px; font-size: 17px; }
+    .fallback p { color: var(--muted); font-size: 12px; }
+    .info-panel { grid-area: info; padding: 16px; display: flex; flex-direction: column; min-height: 590px; }
+    .info-top { border-bottom: 1px solid var(--line); padding-bottom: 13px; }
+    .info-kicker { color: var(--cyan); text-transform: uppercase; letter-spacing: .13em; font-weight: 800; font-size: 9px; }
+    .info-panel h2 { font-size: 19px; line-height: 1.2; letter-spacing: -.03em; margin: 7px 0 3px; }
+    .english-name { color: var(--muted); font-size: 11px; }
+    .info-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 11px; }
+    .info-tags span { border: 1px solid var(--line); color: #b7c8d8; background: rgba(7,17,29,.35); font-size: 9px; padding: 4px 7px; border-radius: 999px; }
+    .info-scroll { overflow-y: auto; padding: 13px 4px 0 0; flex: 1; min-height: 0; }
+    .info-section { margin-bottom: 15px; }
+    .info-section h3 { color: #dceaf4; margin: 0 0 5px; font-size: 10px; text-transform: uppercase; letter-spacing: .1em; }
+    .info-section p { margin: 0; color: #aebfd0; font-size: 11px; line-height: 1.65; }
+    .info-footer { border-top: 1px solid var(--line); padding-top: 12px; display: flex; gap: 7px; }
+    .info-footer .btn { flex: 1; }
+    .dock { grid-area: dock; padding: 13px 15px 14px; }
+    .dock-tabs { display: flex; gap: 7px; border-bottom: 1px solid var(--line); padding-bottom: 10px; }
+    .dock-tab { border: 1px solid transparent; color: var(--muted); background: transparent; border-radius: 9px; padding: 7px 10px; font-size: 11px; font-weight: 700; cursor: pointer; }
+    .dock-tab.active { background: rgba(99,216,209,.1); color: #b9f0ea; border-color: rgba(99,216,209,.24); }
+    .activity-panel, .tour-panel { padding-top: 11px; }
+    .activity-panel[hidden], .tour-panel[hidden] { display: none; }
+    .activity-row { display: grid; grid-template-columns: minmax(205px, 1.1fr) minmax(200px, 1.3fr) auto; gap: 12px; align-items: center; }
+    .activity-select-wrap label { display: block; color: var(--soft); font-size: 9px; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; margin: 0 0 5px 2px; }
+    select {
+      width: 100%; color: var(--text); background: #102238; border: 1px solid var(--line-strong); border-radius: 10px;
+      padding: 9px 32px 9px 10px; outline: none; font-size: 11px;
+    }
+    .activity-description { color: var(--muted); font-size: 10px; line-height: 1.55; padding: 0 5px; }
+    .activity-controls { display: flex; align-items: center; gap: 6px; justify-content: flex-end; }
+    .speed-wrap { display: flex; align-items: center; gap: 5px; color: var(--soft); font-size: 10px; margin-left: 5px; }
+    .speed-wrap select { width: 76px; padding: 7px 8px; }
+    .tour-panel-inner { display: grid; grid-template-columns: auto minmax(180px,1fr) auto; gap: 12px; align-items: center; }
+    .tour-scene-number { color: var(--cyan); font-size: 10px; font-weight: 800; white-space: nowrap; }
+    .tour-copy { min-width: 0; }
+    .tour-copy b { display: block; font-size: 11px; margin-bottom: 2px; }
+    .tour-copy span { color: var(--muted); font-size: 10px; }
+    .tour-progress-wrap { margin-top: 8px; height: 5px; border-radius: 99px; overflow: hidden; background: rgba(157,176,196,.16); cursor: pointer; }
+    .tour-progress { width: 0%; height: 100%; background: linear-gradient(90deg, var(--cyan), var(--blue)); border-radius: inherit; }
+    .tour-controls { display: flex; gap: 6px; }
+    .footer-note { color: #71879d; font-size: 9px; margin: 10px 2px 0; }
+    .toast { position: fixed; left: 50%; bottom: 20px; transform: translate(-50%, 15px); opacity: 0; pointer-events: none; z-index: 100;
+      background: #d6f4ef; color: #09252b; padding: 9px 14px; border-radius: 10px; font-size: 11px; font-weight: 700; box-shadow: var(--shadow); transition: .2s ease; }
+    .toast.show { opacity: 1; transform: translate(-50%, 0); }
+    dialog { width: min(660px, calc(100% - 28px)); max-height: min(82vh, 760px); padding: 0; border: 1px solid var(--line-strong); border-radius: 17px; color: var(--text); background: #102137; box-shadow: 0 24px 80px rgba(0,0,0,.5); }
+    dialog::backdrop { background: rgba(2,9,17,.72); backdrop-filter: blur(3px); }
+    .modal-head { display: flex; justify-content: space-between; gap: 12px; align-items: center; padding: 16px 18px; border-bottom: 1px solid var(--line); }
+    .modal-head h2 { margin: 0; font-size: 16px; }
+    .modal-content { padding: 17px 20px 20px; overflow: auto; max-height: calc(82vh - 60px); color: #b4c5d6; font-size: 12px; line-height: 1.7; }
+    .modal-content h3 { color: var(--text); font-size: 12px; margin: 15px 0 5px; }
+    .modal-content h3:first-child { margin-top: 0; }
+    .modal-content ol, .modal-content ul { padding-left: 19px; margin: 5px 0; }
+    .modal-content code { color: #a7e8df; background: rgba(7,16,27,.7); padding: 2px 5px; border-radius: 5px; }
+    .test-table { width: 100%; border-collapse: collapse; font-size: 10px; margin-top: 8px; }
+    .test-table th, .test-table td { padding: 7px 8px; border: 1px solid var(--line); text-align: left; vertical-align: top; }
+    .test-table th { color: #e4eef7; background: rgba(7,16,27,.35); }
+    .ok { color: #8fe0b1; font-weight: 700; }
+    .todo { color: #f0c578; font-weight: 700; }
+    @media (max-width: 1180px) {
+      .workspace { grid-template-columns: minmax(190px, 220px) minmax(330px, 1fr); grid-template-areas: "organs stage" "info info" "dock dock"; }
+      .organ-panel { min-height: 550px; }
+      .info-panel { min-height: 0; display: grid; grid-template-columns: minmax(180px,.8fr) minmax(250px,1.4fr) auto; gap: 14px; align-items: stretch; }
+      .info-top { border-bottom: 0; border-right: 1px solid var(--line); padding: 0 14px 0 0; }
+      .info-scroll { max-height: 215px; padding-top: 0; }
+      .info-footer { border-top: 0; border-left: 1px solid var(--line); padding: 0 0 0 12px; flex-direction: column; justify-content: center; }
+      .stage-view { height: clamp(470px, 57vw, 590px); }
+    }
+    @media (max-width: 760px) {
+      .app-shell { padding: 12px 10px 16px; }
+      .topbar { align-items: flex-start; padding-bottom: 12px; }
+      .brand-mark { width: 37px; height: 37px; border-radius: 12px; }
+      .brand p { max-width: 220px; line-height: 1.3; }
+      .status-pill { display: none; }
+      .top-actions .btn { padding: 8px 9px; }
+      .workspace { display: flex; flex-direction: column; gap: 10px; }
+      .stage-panel { order: 1; padding: 9px; }
+      .organ-panel { order: 2; min-height: auto; padding: 12px; }
+      .info-panel { order: 3; display: flex; min-height: 0; padding: 14px; }
+      .dock { order: 4; padding: 12px; }
+      .stage-toolbar { align-items: flex-start; }
+      .stage-toolbar p { max-width: 230px; }
+      .stage-actions .btn.small { width: 33px; padding: 0; font-size: 15px; }
+      .stage-actions .btn.small span { display: none; }
+      .stage-view { min-height: 330px; height: min(112vw, 470px); }
+      .canvas-hint { max-width: 62%; line-height: 1.3; }
+      .canvas-state { display: none; }
+      .organ-panel { display: block; }
+      .organ-list { flex-direction: row; overflow-x: auto; overflow-y: hidden; padding: 2px 0 7px; gap: 6px; }
+      .organ-item { width: auto; min-width: 132px; flex: 0 0 auto; border-color: var(--line); background: rgba(7,17,29,.23); }
+      .side-tools { display: flex; flex-wrap: wrap; gap: 12px 18px; padding-top: 9px; }
+      .toggle-row { flex: 0 0 auto; }
+      .info-top { border-right: 0; border-bottom: 1px solid var(--line); padding: 0 0 12px; }
+      .info-scroll { max-height: none; overflow: visible; padding-top: 12px; }
+      .info-footer { border-left: 0; border-top: 1px solid var(--line); padding: 10px 0 0; flex-direction: row; }
+      .activity-row { grid-template-columns: 1fr; gap: 9px; }
+      .activity-controls { justify-content: flex-start; flex-wrap: wrap; }
+      .activity-description { padding: 0 2px; }
+      .tour-panel-inner { grid-template-columns: 1fr auto; gap: 8px; }
+      .tour-scene-number { grid-column: 1 / -1; }
+      .tour-controls { grid-column: 2; grid-row: 2; }
+      .tour-copy { grid-column: 1; grid-row: 2; }
+      .footer-note { line-height: 1.5; }
+    }
+    @media (max-width: 390px) {
+      .brand p { display: none; }
+      .topbar { gap: 7px; }
+      .top-actions { gap: 5px; }
+      .top-actions .btn { font-size: 10px; }
+      .stage-view { min-height: 300px; }
+      .soft-pill { font-size: 9px; padding: 6px 8px; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; }
+    }
+  </style>
+</head>
+<body>
+  <div class="app-shell">
+    <header class="topbar">
+      <div class="brand">
+        <div class="brand-mark" aria-hidden="true">✣</div>
+        <div>
+          <h1>Khám phá cấu trúc tế bào động vật</h1>
+          <p>Sinh học 10 · Tế bào nhân thực · Mô hình 3D tương tác</p>
+        </div>
+      </div>
+      <div class="top-actions">
+        <div class="status-pill"><span class="status-dot"></span> Mô hình tương tác</div>
+        <button class="btn ghost" id="helpBtn" type="button">? Hướng dẫn</button>
+        <button class="btn" id="fullscreenBtn" type="button" aria-label="Toàn màn hình">⛶ <span>Toàn màn hình</span></button>
+      </div>
+    </header>
+
+    <main class="workspace">
+      <aside class="panel organ-panel" aria-label="Danh sách bào quan">
+        <div class="panel-heading">
+          <div><div class="eyebrow">Thành phần</div><h2>Danh sách bào quan</h2></div>
+          <span class="count" id="organCount">14 mục</span>
+        </div>
+        <div class="search-wrap"><span>⌕</span><input id="organSearch" type="search" placeholder="Tìm bào quan..." autocomplete="off" aria-label="Tìm bào quan" /></div>
+        <div class="organ-list" id="organList"></div>
+        <div class="side-tools">
+          <div class="toggle-row"><span>Hiện nhãn trên mô hình</span><label class="switch"><input id="labelsToggle" type="checkbox" checked /><span class="switch-track"></span></label></div>
+          <div class="toggle-row"><span>Hiện màng sinh chất</span><label class="switch"><input id="membraneToggle" type="checkbox" checked /><span class="switch-track"></span></label></div>
+        </div>
+      </aside>
+
+      <section class="panel stage-panel" aria-label="Mô hình tế bào 3D">
+        <div class="stage-toolbar">
+          <div><div class="eyebrow">Không gian quan sát</div><h2>Mô hình tế bào động vật</h2><p>Kéo để xoay · Cuộn để phóng to hoặc thu nhỏ · Chọn bào quan để tìm hiểu</p></div>
+          <div class="stage-actions">
+            <button class="btn small" id="resetViewBtn" type="button" title="Khôi phục góc nhìn">↺ <span>Góc nhìn</span></button>
+            <button class="btn small" id="hideMembraneBtn" type="button" title="Ẩn hoặc hiện màng">◉ <span>Màng</span></button>
+          </div>
+        </div>
+        <div class="stage-view" id="stageView">
+          <canvas id="cellCanvas" aria-label="Mô hình 3D tế bào động vật, có thể xoay bằng thao tác kéo"></canvas>
+          <div class="label-layer" id="labelLayer"></div>
+          <div class="view-badge"><span class="soft-pill">● <span id="selectedBadge">Tổng quan tế bào</span></span></div>
+          <div class="canvas-controls">
+            <button class="btn icon-only" id="zoomInBtn" type="button" aria-label="Phóng to">＋</button>
+            <button class="btn icon-only" id="zoomOutBtn" type="button" aria-label="Thu nhỏ">−</button>
+            <button class="btn icon-only" id="resetCameraBtn" type="button" aria-label="Đặt lại góc nhìn">⌂</button>
+          </div>
+          <div class="canvas-hint">Mô hình minh họa, không theo đúng tỉ lệ thực tế</div>
+          <div class="canvas-state" id="canvasState">3D · WebGL</div>
+          <div class="fallback" id="fallback">
+            <div class="fallback-inner"><div class="fallback-icon">◌</div><h3>Không thể khởi tạo mô hình 3D</h3><p id="fallbackMessage">Trình duyệt hoặc thiết bị hiện tại chưa hỗ trợ WebGL, hoặc thư viện 3D chưa tải được. Danh sách và phần kiến thức vẫn có thể sử dụng.</p></div>
+          </div>
+        </div>
+      </section>
+
+      <aside class="panel info-panel" aria-live="polite" aria-label="Thông tin bào quan">
+        <div class="info-top">
+          <div class="info-kicker">Thông tin bào quan</div>
+          <h2 id="infoName">Tế bào chất</h2>
+          <div class="english-name" id="infoEnglish">Cytoplasm</div>
+          <div class="info-tags" id="infoTags"><span>Không có màng bao</span><span>Môi trường nội bào</span></div>
+        </div>
+        <div class="info-scroll">
+          <section class="info-section"><h3>Đặc điểm cấu trúc</h3><p id="infoStructure"></p></section>
+          <section class="info-section"><h3>Chức năng chính</h3><p id="infoFunction"></p></section>
+          <section class="info-section"><h3>Cấu trúc và chức năng</h3><p id="infoRelation"></p></section>
+        </div>
+        <div class="info-footer">
+          <button class="btn primary" id="focusBtn" type="button">◎ Tập trung quan sát</button>
+          <button class="btn" id="overviewBtn" type="button">↺ Tổng thể</button>
+        </div>
+      </aside>
+
+      <section class="panel dock" aria-label="Điều khiển hoạt hình">
+        <div class="dock-tabs">
+          <button class="dock-tab active" id="activityTab" type="button">Hoạt động sinh học</button>
+          <button class="dock-tab" id="tourTab" type="button">▶ Video khám phá · 3:20</button>
+        </div>
+        <div class="activity-panel" id="activityPanel">
+          <div class="activity-row">
+            <div class="activity-select-wrap">
+              <label for="activitySelect">Chọn mô phỏng</label>
+              <select id="activitySelect">
+                <option value="mitochondria">1 · Hoạt động của ti thể</option>
+                <option value="protein">2 · Tổng hợp protein</option>
+                <option value="transport">3 · Vận chuyển nội bào</option>
+                <option value="lysosome">4 · Hoạt động của lysosome</option>
+                <option value="centrosome">5 · Vai trò của trung thể</option>
+              </select>
+            </div>
+            <div class="activity-description" id="activityDescription">Ti thể là nơi diễn ra nhiều giai đoạn của hô hấp tế bào; màng trong gấp nếp tạo mào ti thể.</div>
+            <div class="activity-controls">
+              <button class="btn primary small" id="playDemoBtn" type="button">▶ Phát</button>
+              <button class="btn small" id="pauseDemoBtn" type="button">Ⅱ Tạm dừng</button>
+              <button class="btn small" id="replayDemoBtn" type="button">↻ Phát lại</button>
+              <label class="speed-wrap">Tốc độ <select id="speedSelect" aria-label="Tốc độ mô phỏng"><option value="0.5">0,5×</option><option value="1" selected>1×</option><option value="1.5">1,5×</option><option value="2">2×</option></select></label>
+            </div>
+          </div>
+        </div>
+        <div class="tour-panel" id="tourPanel" hidden>
+          <div class="tour-panel-inner">
+            <div class="tour-scene-number" id="tourSceneNumber">CẢNH 01 / 08</div>
+            <div class="tour-copy"><b id="tourTitle">Giới thiệu tổng quan tế bào động vật</b><span id="tourSubtitle">Quan sát hình dạng chung và các thành phần chính của tế bào nhân thực.</span><div class="tour-progress-wrap" id="tourProgressWrap" role="slider" aria-label="Tiến trình video mô phỏng" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" tabindex="0"><div class="tour-progress" id="tourProgress"></div></div></div>
+            <div class="tour-controls"><button class="btn small" id="prevSceneBtn" type="button" aria-label="Cảnh trước">◀</button><button class="btn primary small" id="playTourBtn" type="button">▶ Phát</button><button class="btn small" id="nextSceneBtn" type="button" aria-label="Cảnh tiếp theo">▶|</button></div>
+          </div>
+        </div>
+        <div class="footer-note">Chế độ video là hoạt hình mô phỏng chạy trực tiếp trong trang web, không phải tệp MP4. Tổng thời lượng tham khảo: 8 cảnh × 25 giây.</div>
+      </section>
+    </main>
+  </div>
+
+  <div class="toast" id="toast" role="status"></div>
+
+  <dialog id="guideDialog">
+    <div class="modal-head"><h2>Hướng dẫn sử dụng</h2><button class="btn icon-only" id="closeGuideBtn" type="button" aria-label="Đóng">×</button></div>
+    <div class="modal-content">
+      <h3>1. Khám phá mô hình</h3>
+      <ul><li>Kéo chuột hoặc ngón tay trên vùng mô hình để xoay tế bào; dùng con lăn hoặc nút ＋ / − để đổi mức phóng đại.</li><li>Chọn bào quan trong danh sách bên trái hoặc nhấn trực tiếp lên mô hình để xem thông tin.</li><li>Dùng “Tập trung quan sát” để đưa bào quan đã chọn vào vùng nhìn; “Tổng thể” để trở về góc nhìn ban đầu.</li><li>Bật/tắt nhãn hoặc màng sinh chất bằng các công tắc.</li></ul>
+      <h3>2. Hoạt hình sinh học</h3>
+      <p>Chọn một trong năm mô phỏng, nhấn Phát, Tạm dừng hoặc Phát lại. Có thể thay đổi tốc độ từ 0,5× đến 2×. Các mô phỏng dùng chuyển động hình học đơn giản để minh họa ý tưởng, không thay thế phim vi mô thực nghiệm.</p>
+      <h3>3. Video khám phá</h3>
+      <p>Chuyển sang “Video khám phá” để chạy lần lượt tám cảnh tự động, mỗi cảnh khoảng 25 giây. Có thể chuyển cảnh trước/sau hoặc kéo thanh tiến trình. Đây là chế độ trình diễn trực tiếp, không xuất tệp MP4.</p>
+      <h3>4. Đưa ứng dụng lên web và tạo mã QR</h3>
+      <ol><li>Lưu tệp <code>mo_phong_te_bao_dong_vat.html</code> vào máy.</li><li>Tạo một repository GitHub mới, tải tệp lên và đặt tên trang chủ là <code>index.html</code> (hoặc đổi tên bản HTML này thành <code>index.html</code>).</li><li>Trong repository, mở <code>Settings → Pages</code>, chọn nhánh triển khai và thư mục gốc, sau đó lưu. Chờ GitHub Pages cung cấp đường dẫn trang web.</li><li>Mở đường dẫn trên điện thoại và máy tính để kiểm tra. Dùng một công cụ tạo QR đáng tin cậy, nhập đường dẫn GitHub Pages rồi tải mã QR để in hoặc trình chiếu.</li></ol>
+      <p><b>Lưu ý:</b> Three.js được tải từ CDN nên khi mở ứng dụng cần có Internet. Để chạy ổn định trên máy tính, nên mở qua máy chủ web cục bộ (ví dụ Live Server) thay vì mở trực tiếp bằng đường dẫn <code>file://</code>. Không cần đăng nhập, cơ sở dữ liệu hay API key.</p>
+      <h3>5. Bảng tự kiểm thử</h3>
+      <table class="test-table"><thead><tr><th>Hạng mục</th><th>Trạng thái trong bản này</th><th>Ghi chú</th></tr></thead><tbody>
+        <tr><td>Mô hình 3D, xoay, zoom, reset</td><td class="ok">Đã lập trình</td><td>Three.js, hình học mức chi tiết vừa phải; cần kiểm tra trên thiết bị đích.</td></tr>
+        <tr><td>14 cấu trúc/bào quan và bảng kiến thức</td><td class="ok">Đã lập trình</td><td>Chọn từ danh sách hoặc nhấn mô hình; không theo tỉ lệ thực.</td></tr>
+        <tr><td>Nhãn, màng sinh chất, tìm kiếm</td><td class="ok">Đã lập trình</td><td>Có công tắc và lọc danh sách.</td></tr>
+        <tr><td>5 hoạt hình sinh học, tốc độ và điều khiển</td><td class="ok">Đã lập trình</td><td>Minh họa giản lược bằng chuyển động trong mô hình.</td></tr>
+        <tr><td>Video mô phỏng 8 cảnh</td><td class="ok">Đã lập trình</td><td>Tour tự động 3 phút 20 giây, không phải MP4.</td></tr>
+        <tr><td>Giao diện desktop / mobile</td><td class="ok">Đã lập trình</td><td>Responsive CSS; vẫn cần thử ở nhiều kích thước màn hình.</td></tr>
+        <tr><td>Hiệu năng và WebGL fallback</td><td class="todo">Cần kiểm thử thực tế</td><td>Đã giới hạn độ phân giải, hình học và bỏ đổ bóng hậu kỳ; chưa đo FPS trên mọi máy.</td></tr>
+        <tr><td>Độ chính xác mô hình ở cấp độ phân tử</td><td class="todo">Mô hình khái quát</td><td>Hình minh họa giáo dục, không phải mô phỏng phân tử hay ảnh hiển vi.</td></tr>
+      </tbody></table>
+    </div>
+  </dialog>
+
+  <script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
+  <script>
+  (() => {
+    'use strict';
+
+    const organelles = [
+      { id:'membrane', name:'Màng sinh chất', en:'Plasma membrane', color:'#65d9cf', tags:['Màng kép phospholipid','Tính thấm chọn lọc'], structure:'Màng sinh chất bao quanh tế bào, có cấu trúc cơ bản là lớp kép phospholipid cùng các protein và thành phần liên quan. Màng có tính linh động, không phải một lớp vỏ cứng.', func:'Ngăn cách tế bào với môi trường, điều hòa trao đổi chất có chọn lọc, tiếp nhận tín hiệu và tham gia nhận biết tế bào.', relation:'Lớp kép phospholipid tạo hàng rào kị nước, còn protein màng đảm nhiệm nhiều vai trò như vận chuyển, thụ thể và enzyme. Sự phối hợp đó giúp tế bào trao đổi có kiểm soát.', focus:[0,0,0], dist:10 },
+      { id:'cytoplasm', name:'Tế bào chất', en:'Cytoplasm', color:'#74b9e8', tags:['Bào tương và bào quan','Môi trường nội bào'], structure:'Tế bào chất gồm dịch bào tương (cytosol), hệ thống bào quan và các cấu trúc nằm giữa màng sinh chất với nhân. Trong mô hình, vùng này được biểu diễn bán trong suốt để dễ quan sát.', func:'Là môi trường diễn ra nhiều phản ứng chuyển hóa, đồng thời chứa và kết nối các bào quan trong tế bào.', relation:'Dịch bào tương giúp các phân tử khuếch tán và tạo môi trường cho enzyme hoạt động; khung xương tế bào góp phần tổ chức không gian và vận chuyển nội bào.', focus:[0,0,0], dist:13 },
+      { id:'nucleus', name:'Nhân tế bào', en:'Nucleus', color:'#b99aff', tags:['Màng nhân kép','Chứa DNA'], structure:'Nhân thường có dạng cầu hoặc bầu dục, được bao bọc bởi màng nhân kép có các lỗ nhân. Bên trong chứa chất nhiễm sắc và nhân con.', func:'Lưu giữ phần lớn thông tin di truyền của tế bào và tham gia điều hòa hoạt động tế bào thông qua biểu hiện gene.', relation:'Màng nhân và lỗ nhân kiểm soát trao đổi giữa nhân với tế bào chất; DNA trong chất nhiễm sắc là khuôn cho quá trình phiên mã.', focus:[-.65,.3,.1], dist:7.7 },
+      { id:'nucleolus', name:'Nhân con', en:'Nucleolus', color:'#f0b0d0', tags:['Vùng đậm trong nhân','Tạo tiểu đơn vị ribosome'], structure:'Nhân con là vùng đậm đặc nằm trong nhân, không được bao bọc bởi màng riêng. Thành phần chủ yếu liên quan đến rRNA và protein.', func:'Là nơi tổng hợp rRNA và lắp ráp các tiểu đơn vị ribosome trước khi chúng được đưa ra tế bào chất.', relation:'Việc tạo rRNA và lắp ráp tiểu đơn vị ribosome tại nhân con cung cấp thành phần cần thiết cho quá trình dịch mã ở ribosome.', focus:[-.92,.48,.62], dist:6.4 },
+      { id:'chromatin', name:'Chất nhiễm sắc', en:'Chromatin', color:'#d3b8ff', tags:['DNA và protein','Nằm trong nhân'], structure:'Chất nhiễm sắc gồm DNA liên kết với protein, chủ yếu là histone. Nó phân bố trong nhân và có thể co xoắn thành nhiễm sắc thể rõ hơn khi tế bào phân chia.', func:'Đóng gói DNA, góp phần điều hòa khả năng tiếp cận thông tin di truyền và bảo đảm vật chất di truyền được tổ chức trong nhân.', relation:'Cách DNA đóng gói với protein ảnh hưởng đến hoạt động gene; cấu trúc chất nhiễm sắc vừa giúp bảo vệ DNA vừa tham gia điều hòa phiên mã.', focus:[-.65,.25,.1], dist:7.8 },
+      { id:'ribosome', name:'Ribosome', en:'Ribosome', color:'#f4cb78', tags:['Không có màng bao','Tổng hợp protein'], structure:'Ribosome là phức hợp gồm rRNA và protein, không có màng bao. Ribosome có thể tồn tại tự do trong tế bào chất hoặc gắn trên bề mặt lưới nội chất hạt.', func:'Thực hiện quá trình dịch mã, liên kết các amino acid theo thông tin trên mRNA để tạo chuỗi polypeptide.', relation:'Cấu trúc gồm hai tiểu đơn vị tạo nên vị trí gắn mRNA và tRNA. Vị trí của ribosome liên quan đến hướng đi của protein mới tổng hợp.', focus:[-1.8,1.05,.35], dist:8.2 },
+      { id:'rer', name:'Lưới nội chất hạt', en:'Rough endoplasmic reticulum (RER)', color:'#6db8eb', tags:['Có ribosome bám','Hệ thống màng'], structure:'Lưới nội chất hạt là hệ thống túi và ống màng liên tục hoặc liên hệ với màng nhân; mặt hướng ra tế bào chất có ribosome bám.', func:'Tham gia tổng hợp, gấp cuộn và biến đổi ban đầu nhiều protein được tiết ra ngoài, gắn màng hoặc chuyển đến một số bào quan.', relation:'Ribosome bám trên màng tổng hợp chuỗi polypeptide đi vào lòng lưới nội chất hoặc màng của nó, tạo liên hệ trực tiếp giữa tổng hợp protein và hệ thống nội màng.', focus:[-2.0,.85,.0], dist:8.2 },
+      { id:'ser', name:'Lưới nội chất trơn', en:'Smooth endoplasmic reticulum (SER)', color:'#65d0b0', tags:['Không có ribosome bám','Hệ thống ống màng'], structure:'Lưới nội chất trơn gồm các ống màng phân nhánh, không có ribosome bám trên bề mặt tế bào chất.', func:'Tham gia tổng hợp lipid, chuyển hóa một số chất, khử độc ở một số loại tế bào và dự trữ ion calcium ở tế bào chuyên hóa.', relation:'Mạng lưới ống màng tạo bề mặt cho enzyme tổng hợp lipid và một số quá trình chuyển hóa; việc không có ribosome giúp phân biệt với lưới nội chất hạt.', focus:[1.2,.1,-.55], dist:8.5 },
+      { id:'golgi', name:'Bộ máy Golgi', en:'Golgi apparatus', color:'#f0a46f', tags:['Các túi dẹt xếp chồng','Phân loại và đóng gói'], structure:'Bộ máy Golgi gồm các túi màng dẹt (cisternae) xếp chồng có tính phân cực, kèm các bóng vận chuyển liên quan.', func:'Tiếp nhận, biến đổi, phân loại và đóng gói protein cùng lipid để chuyển đến vị trí phù hợp trong hoặc ngoài tế bào.', relation:'Các túi vận chuyển đưa sản phẩm từ lưới nội chất đến Golgi; các enzyme trong các ngăn Golgi biến đổi phân tử rồi phân phối chúng bằng những túi khác.', focus:[1.85,-.95,.65], dist:7.6 },
+      { id:'mitochondria', name:'Ti thể', en:'Mitochondrion', color:'#f1a85d', tags:['Màng kép','Mào ti thể'], structure:'Ti thể có màng ngoài và màng trong. Màng trong gấp nếp tạo mào ti thể, bao quanh chất nền chứa enzyme và vật chất di truyền riêng của ti thể.', func:'Là nơi diễn ra nhiều giai đoạn của hô hấp tế bào hiếu khí và góp phần tạo ATP cung cấp cho các hoạt động của tế bào.', relation:'Màng trong có diện tích lớn nhờ các mào ti thể, chứa chuỗi truyền electron và ATP synthase. Cấu trúc màng hỗ trợ tạo chênh lệch proton cần cho tổng hợp ATP.', focus:[-2.1,1.0,1.3], dist:7.4 },
+      { id:'lysosome', name:'Lysosome (tiêu thể)', en:'Lysosome', color:'#e68c9b', tags:['Túi có màng bao','Enzyme thủy phân'], structure:'Lysosome là túi màng chứa các enzyme thủy phân hoạt động trong môi trường bên trong có tính acid.', func:'Phân giải một số đại phân tử, vật chất được tế bào thu nhận và các thành phần tế bào cần tái chế.', relation:'Màng lysosome giúp tách enzyme thủy phân khỏi tế bào chất. Sự kết hợp với túi chứa vật chất cần phân giải cho phép tái chế có kiểm soát, không phải phá hủy tùy tiện.', focus:[2.45,1.55,.3], dist:7.2 },
+      { id:'centrosome', name:'Trung thể', en:'Centrosome', color:'#a9a1ff', tags:['Cặp trung tử','Tổ chức vi ống'], structure:'Trung thể điển hình của tế bào động vật gồm hai trung tử thường định hướng gần vuông góc, nằm trong vùng chất quanh trung tử.', func:'Là trung tâm tổ chức vi ống quan trọng, góp phần hình thành và sắp xếp mạng lưới vi ống; tham gia tổ chức thoi phân bào ở tế bào phù hợp.', relation:'Các thành phần quanh trung tử hỗ trợ khởi đầu và tổ chức vi ống. Hai trung tử là đặc điểm thường gặp của trung thể điển hình, không nên xem là cấu trúc duy nhất có ở mọi tế bào động vật.', focus:[.8,.4,-2.25], dist:7.2 },
+      { id:'cytoskeleton', name:'Khung xương tế bào', en:'Cytoskeleton', color:'#78c4e8', tags:['Vi ống và sợi protein','Nâng đỡ và vận chuyển'], structure:'Khung xương tế bào là mạng lưới protein gồm vi ống, vi sợi actin và sợi trung gian phân bố trong tế bào chất.', func:'Duy trì hình dạng, hỗ trợ vận động tế bào, định vị bào quan và tham gia vận chuyển nội bào.', relation:'Các sợi có kích thước và tính chất khác nhau tạo khung nâng đỡ linh hoạt; protein vận động có thể di chuyển túi và bào quan dọc theo một số thành phần của mạng lưới.', focus:[0,0,0], dist:11 },
+      { id:'vesicles', name:'Các túi vận chuyển', en:'Transport vesicles', color:'#83d6a6', tags:['Túi màng nhỏ','Vận chuyển nội bào'], structure:'Túi vận chuyển là các cấu trúc nhỏ được bao bởi màng, hình thành và hòa màng với những ngăn khác nhau của hệ thống nội màng.', func:'Chuyển protein và lipid giữa lưới nội chất, bộ máy Golgi, màng sinh chất và một số ngăn nội bào.', relation:'Màng túi giúp cô lập hàng hóa trong quá trình vận chuyển. Các protein nhận diện và hòa màng hỗ trợ túi đến đúng đích.', focus:[1.2,-.2,.95], dist:8.5 }
+    ];
+
+    const activities = {
+      mitochondria: { description:'Ti thể là nơi diễn ra nhiều giai đoạn của hô hấp tế bào; màng trong gấp nếp tạo mào ti thể.', caption:'Màng trong và các mào ti thể tạo bề mặt cho chuỗi truyền electron và ATP synthase. ATP được tổng hợp trong quá trình hô hấp tế bào.', focus:'mitochondria' },
+      protein: { description:'Ribosome dịch mã mRNA; ribosome gắn trên lưới nội chất hạt tham gia tạo protein đi vào hệ thống nội màng.', caption:'Ribosome liên kết amino acid thành chuỗi polypeptide theo thông tin mRNA. Một số chuỗi mới tổng hợp đi vào lưới nội chất hạt để tiếp tục xử lý.', focus:'rer' },
+      transport: { description:'Túi vận chuyển mang protein từ lưới nội chất đến bộ máy Golgi để tiếp tục xử lý và phân phối.', caption:'Protein đi từ lưới nội chất trong các túi vận chuyển đến Golgi, nơi chúng được biến đổi, phân loại và đóng gói.', focus:'golgi' },
+      lysosome: { description:'Lysosome tham gia phân giải vật chất được đưa vào tế bào hoặc thành phần cần tái chế.', caption:'Màng lysosome bao bọc enzyme thủy phân. Khi vật chất cần xử lý được đưa vào ngăn thích hợp, các enzyme hỗ trợ phân giải và tái chế thành phần.', focus:'lysosome' },
+      centrosome: { description:'Trung thể góp phần tổ chức vi ống và sắp xếp bộ khung vi ống trong tế bào.', caption:'Vùng quanh trung tử hỗ trợ tổ chức vi ống. Ở tế bào phân chia, mạng vi ống được tổ chức thành thoi phân bào.', focus:'centrosome' }
+    };
+
+    const tourScenes = [
+      { title:'Giới thiệu tổng quan tế bào động vật', subtitle:'Tế bào động vật là tế bào nhân thực, có màng sinh chất, tế bào chất, nhân và nhiều bào quan chuyên hóa.', focus:'cytoplasm' },
+      { title:'Màng sinh chất và tế bào chất', subtitle:'Màng sinh chất tạo ranh giới có tính thấm chọn lọc; tế bào chất là môi trường chứa bào quan và diễn ra nhiều phản ứng.', focus:'membrane' },
+      { title:'Khám phá nhân tế bào', subtitle:'Nhân được bao bọc bởi màng nhân kép có lỗ nhân; bên trong có chất nhiễm sắc và nhân con.', focus:'nucleus' },
+      { title:'Ribosome và lưới nội chất', subtitle:'Ribosome tổng hợp protein; lưới nội chất hạt có ribosome bám, còn lưới nội chất trơn không có ribosome bám.', focus:'rer' },
+      { title:'Bộ máy Golgi và vận chuyển protein', subtitle:'Golgi tiếp nhận, biến đổi, phân loại và đóng gói protein; túi vận chuyển đưa sản phẩm đến đích.', focus:'golgi' },
+      { title:'Ti thể và hô hấp tế bào', subtitle:'Màng trong ti thể gấp nếp thành mào, là nơi có các thành phần quan trọng cho quá trình tổng hợp ATP.', focus:'mitochondria' },
+      { title:'Lysosome, trung thể và khung xương tế bào', subtitle:'Các cấu trúc này lần lượt tham gia phân giải/tái chế vật chất, tổ chức vi ống và nâng đỡ tế bào.', focus:'lysosome' },
+      { title:'Tổng kết cấu trúc tế bào động vật', subtitle:'Các bào quan có cấu trúc khác nhau nhưng phối hợp để duy trì hoạt động sống của tế bào.', focus:'cytoplasm' }
+    ];
+
+    const $ = (id) => document.getElementById(id);
+    const organList = $('organList');
+    const labelLayer = $('labelLayer');
+    const stageView = $('stageView');
+    const canvas = $('cellCanvas');
+    const fallback = $('fallback');
+    let selectedId = 'cytoplasm';
+    let labelsVisible = true;
+    let membraneVisible = true;
+    let toastTimer = 0;
+
+    function toast(message) {
+      const el = $('toast'); el.textContent = message; el.classList.add('show');
+      clearTimeout(toastTimer); toastTimer = setTimeout(() => el.classList.remove('show'), 2100);
+    }
+
+    function renderOrganList(query = '') {
+      const q = query.trim().toLocaleLowerCase('vi');
+      const visible = organelles.filter(o => (o.name + ' ' + o.en).toLocaleLowerCase('vi').includes(q));
+      organList.innerHTML = visible.map(o => `
+        <button class="organ-item ${o.id === selectedId ? 'active' : ''}" data-organ="${o.id}" type="button">
+          <span class="organ-dot" style="background:${o.color}"></span>
+          <span class="organ-label"><b>${o.name}</b><small>${o.en}</small></span><span class="organ-chevron">›</span>
+        </button>`).join('') || '<div style="padding:14px 8px;color:var(--soft);font-size:11px">Không tìm thấy bào quan phù hợp.</div>';
+      $('organCount').textContent = `${visible.length}/${organelles.length} mục`;
+      organList.querySelectorAll('[data-organ]').forEach(btn => btn.addEventListener('click', () => selectOrganelle(btn.dataset.organ, true)));
+    }
+
+    function renderInfo(id) {
+      const item = organelles.find(o => o.id === id) || organelles[1];
+      $('infoName').textContent = item.name;
+      $('infoEnglish').textContent = item.en;
+      $('infoTags').innerHTML = item.tags.map(tag => `<span>${tag}</span>`).join('');
+      $('infoStructure').textContent = item.structure;
+      $('infoFunction').textContent = item.func;
+      $('infoRelation').textContent = item.relation;
+      $('selectedBadge').textContent = item.name;
+      $('focusBtn').disabled = !window.cellModelReady;
+    }
+
+    function selectOrganelle(id, fromUser = false) {
+      const item = organelles.find(o => o.id === id); if (!item) return;
+      selectedId = id;
+      renderOrganList($('organSearch').value);
+      renderInfo(id);
+      if (window.cellModelReady) {
+        Object.entries(window.organelleGroups || {}).forEach(([key, group]) => setGroupHighlight(group, key === id));
+        if (fromUser) wakeRender();
+      }
+    }
+
+    $('organSearch').addEventListener('input', e => renderOrganList(e.target.value));
+    $('labelsToggle').addEventListener('change', e => { labelsVisible = e.target.checked; updateLabelVisibility(); wakeRender(); });
+    $('membraneToggle').addEventListener('change', e => setMembrane(e.target.checked));
+    $('hideMembraneBtn').addEventListener('click', () => { $('membraneToggle').checked = !$('membraneToggle').checked; setMembrane($('membraneToggle').checked); });
+    $('resetViewBtn').addEventListener('click', resetView);
+    $('resetCameraBtn').addEventListener('click', resetView);
+    $('overviewBtn').addEventListener('click', () => { selectOrganelle('cytoplasm'); resetView(); });
+    $('focusBtn').addEventListener('click', () => focusOrganelle(selectedId));
+    $('zoomInBtn').addEventListener('click', () => zoomCamera(.88));
+    $('zoomOutBtn').addEventListener('click', () => zoomCamera(1.13));
+
+    renderOrganList(); renderInfo(selectedId);
+
+    // Three.js: sử dụng hình học mức chi tiết vừa phải, không đổ bóng và không dùng hậu kỳ.
+    if (!window.THREE) {
+      fallback.classList.add('show');
+      $('fallbackMessage').textContent = 'Không tải được thư viện Three.js từ CDN. Hãy kiểm tra kết nối Internet rồi tải lại trang; danh sách và phần kiến thức vẫn có thể sử dụng.';
+    } else {
+      try { initThreeModel(); }
+      catch (err) {
+        console.error(err); fallback.classList.add('show');
+        $('fallbackMessage').textContent = 'Thiết bị không khởi tạo được WebGL hoặc gặp lỗi khi dựng mô hình. Hãy thử trình duyệt hỗ trợ WebGL mới hơn.';
+      }
+    }
+
+    function initThreeModel() {
+      const THREE = window.THREE;
+      const renderer = new THREE.WebGLRenderer({ canvas, antialias: false, alpha: true, powerPreference: 'low-power' });
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.35));
+      renderer.setClearColor(0x000000, 0);
+      const scene = new THREE.Scene();
+      const camera = new THREE.PerspectiveCamera(39, 1, .1, 80);
+      let target = new THREE.Vector3(0, 0, 0);
+      let radius = 13.2, theta = .22, phi = Math.PI / 2.06;
+      const groups = {};
+      const focusPositions = {};
+      const labelAnchors = {};
+      const clickableRoots = [];
+      const raycaster = new THREE.Raycaster();
+      const pointer = new THREE.Vector2();
+      let raf = 0, lastFrame = 0, demoPlaying = false, tourPlaying = false;
+      let activeDemo = 'mitochondria', demoElapsed = 0, tourTime = 0, speed = 1;
+      let dragging = false, dragStart = null, pointerMoved = false;
+
+      scene.add(new THREE.AmbientLight(0xc8e3ef, 1.45));
+      const keyLight = new THREE.DirectionalLight(0xe1f3ff, 1.25); keyLight.position.set(5, 7, 8); scene.add(keyLight);
+      const fillLight = new THREE.DirectionalLight(0x62b8c7, .55); fillLight.position.set(-6, -3, -4); scene.add(fillLight);
+
+      const defaultMat = (color, options = {}) => new THREE.MeshPhongMaterial({ color, shininess: options.shininess ?? 30, specular: options.specular ?? 0x263b4b, transparent: options.transparent ?? false, opacity: options.opacity ?? 1, side: options.side ?? THREE.DoubleSide, depthWrite: options.depthWrite ?? true, wireframe: options.wireframe ?? false });
+      const sphereGeo = new THREE.SphereGeometry(1, 20, 14);
+      const tube = (group, points, color, radiusSize = .035, opacity = 1) => {
+        const curve = new THREE.CatmullRomCurve3(points.map(p => new THREE.Vector3(p[0], p[1], p[2])));
+        const geo = new THREE.TubeGeometry(curve, 22, radiusSize, 5, false);
+        const mat = defaultMat(color, { transparent: opacity < 1, opacity, shininess: 18 });
+        const mesh = new THREE.Mesh(geo, mat); group.add(mesh); return mesh;
+      };
+      const ball = (group, pos, scale, color, opacity = 1, detail = 12) => {
+        const geo = detail === 20 ? sphereGeo : new THREE.SphereGeometry(1, detail, Math.max(6, Math.floor(detail * .7)));
+        const mesh = new THREE.Mesh(geo, defaultMat(color, { transparent: opacity < 1, opacity, shininess: 38, depthWrite: opacity >= 1 }));
+        mesh.position.set(pos[0], pos[1], pos[2]); mesh.scale.set(scale[0], scale[1], scale[2]); group.add(mesh); return mesh;
+      };
+      const addGroup = (id, focus, dist) => {
+        const group = new THREE.Group(); group.userData.organelleId = id; scene.add(group); groups[id] = group;
+        // Vỏ tế bào và vỏ nhân trong suốt không tham gia raycast để không chặn lựa chọn bào quan phía sau.
+        if (!['membrane','cytoplasm','nucleus'].includes(id)) clickableRoots.push(group);
+        focusPositions[id] = { point: new THREE.Vector3(...focus), dist };
+        return group;
+      };
+      const cylinder = (group, pos, scale, color, rotation = [0,0,0], radial = 9) => {
+        const geo = new THREE.CylinderGeometry(.12, .12, 1, radial, 1, false);
+        const mesh = new THREE.Mesh(geo, defaultMat(color, { shininess: 24 }));
+        mesh.position.set(...pos); mesh.scale.set(...scale); mesh.rotation.set(...rotation); group.add(mesh); return mesh;
+      };
+      const cellShell = addGroup('membrane', [0,0,0], 10);
+      const shell = new THREE.Mesh(sphereGeo, defaultMat(0x53c9ca, { transparent:true, opacity:.14, depthWrite:false, shininess:75 }));
+      shell.scale.set(4.65, 3.23, 3.8); cellShell.add(shell);
+      const shellEdge = new THREE.Mesh(new THREE.SphereGeometry(1.006, 20, 14), defaultMat(0x72d9d5, { transparent:true, opacity:.2, wireframe:true, depthWrite:false }));
+      shellEdge.scale.copy(shell.scale); cellShell.add(shellEdge);
+
+      const cytoplasm = addGroup('cytoplasm', [0,0,0], 13);
+      const cyt = new THREE.Mesh(sphereGeo, defaultMat(0x4d8caa, { transparent:true, opacity:.075, depthWrite:false, shininess:8 }));
+      cyt.scale.set(4.47,3.05,3.65); cytoplasm.add(cyt);
+
+      const nucleus = addGroup('nucleus', [-.65,.3,.1], 7.7);
+      const nucOuter = new THREE.Mesh(new THREE.SphereGeometry(1.12, 22, 16), defaultMat(0x9379d0, { transparent:true, opacity:.20, depthWrite:false, shininess:48 }));
+      nucOuter.position.set(-.65,.3,.1); nucOuter.scale.set(1.02,.93,1); nucleus.add(nucOuter);
+      const nucInner = new THREE.Mesh(new THREE.SphereGeometry(1.04, 20, 14), defaultMat(0x7e70bd, { transparent:true, opacity:.12, depthWrite:false, wireframe:true }));
+      nucInner.position.set(-.65,.3,.1); nucleus.add(nucInner);
+      for (let i=0;i<10;i++) {
+        const a = (i/10)*Math.PI*2;
+        ball(nucleus, [-.65+1.02*Math.cos(a), .3+.90*Math.sin(a), .14], [.045,.045,.045], 0xd9c9ff, .85, 8);
+      }
+
+      const nucleolus = addGroup('nucleolus', [-.92,.48,.62], 6.4);
+      ball(nucleolus, [-.92,.48,.62], [.27,.25,.23], 0xe79abd, 1, 16);
+      ball(nucleolus, [-.99,.51,.67], [.1,.09,.08], 0xf6c5d9, .5, 10);
+
+      const chromatin = addGroup('chromatin', [-.65,.25,.1], 7.8);
+      tube(chromatin, [[-1.35,.15,.65],[-1.1,.45,.5],[-.9,.15,.25],[-.55,.35,.62],[-.25,.18,.35]], 0xd9b9ff, .035);
+      tube(chromatin, [[-1.25,.65,-.1],[-.9,.5,-.3],[-.75,.12,-.35],[-.35,.42,-.15],[-.12,.2,.0]], 0xc8a7f7, .032);
+      tube(chromatin, [[-1.15,-.05,-.35],[-.9,-.25,-.1],[-.62,-.1,.18],[-.35,-.38,.12],[-.2,-.08,-.2]], 0xe0c9ff, .03);
+      tube(chromatin, [[-.9,.82,.15],[-.7,.55,.3],[-.45,.7,.5],[-.25,.45,.35]], 0xb997ef, .028);
+
+      const rer = addGroup('rer', [-2,.85,0], 8.2);
+      const rerCurves = [
+        [[-1.72,1.12,.5],[-2.08,1.45,.22],[-2.42,1.22,-.12],[-2.32,.88,-.48],[-1.9,.72,-.68]],
+        [[-1.8,.58,.65],[-2.2,.82,.82],[-2.58,.58,.48],[-2.48,.25,.15],[-2.1,.13,-.12]],
+        [[-1.28,1.2,-.1],[-1.62,1.48,-.42],[-1.95,1.33,-.75],[-2.06,1.03,-.9]],
+        [[-1.52,.05,.7],[-1.95,-.15,.62],[-2.28,-.35,.3],[-2.32,-.25,-.05]]
+      ];
+      rerCurves.forEach((pts, idx) => {
+        tube(rer, pts, idx%2 ? 0x5d9fc9 : 0x75c3df, .06, .95);
+        pts.slice(1,4).forEach((p,j) => ball(rer, [p[0]+.05,p[1]+.08,p[2]+.03], [.065,.065,.065], 0xf1c779, 1, 8));
+      });
+
+      const ser = addGroup('ser', [1.2,.1,-.55], 8.5);
+      tube(ser, [[.9,.6,-.5],[1.25,.9,-.75],[1.65,.72,-.95],[1.8,.35,-.82],[1.52,.05,-.58]], 0x65d0b0, .055);
+      tube(ser, [[1.1,-.1,-.4],[1.45,.0,-.1],[1.85,-.25,.0],[2.1,-.48,-.3]], 0x55b99f, .052);
+      tube(ser, [[.78,-.35,-.9],[1.05,-.7,-1.1],[1.42,-.65,-1.35],[1.72,-.35,-1.25]], 0x71d6b9, .05);
+      tube(ser, [[1.68,.75,-.2],[2.05,.95,-.42],[2.38,.7,-.62]], 0x53bca4, .045);
+
+      const golgi = addGroup('golgi', [1.85,-.95,.65], 7.6);
+      for (let i=0;i<5;i++) {
+        const mesh = new THREE.Mesh(sphereGeo, defaultMat(i%2 ? 0xe7a26f : 0xf0b47d, { shininess:42 }));
+        mesh.position.set(1.78 + (i-2)*.055, -.8-i*.19, .55 + Math.abs(i-2)*.035);
+        mesh.scale.set(.68-Math.abs(i-2)*.04, .105, .37-Math.abs(i-2)*.018); golgi.add(mesh);
+      }
+      ball(golgi, [2.58,-.55,.85], [.16,.16,.16], 0xf4bf91, 1, 10);
+      ball(golgi, [1.2,-1.57,.95], [.12,.12,.12], 0xe69b6c, 1, 10);
+
+      const mitochondria = addGroup('mitochondria', [-2.1,1,1.3], 7.4);
+      function makeMito(pos, rot) {
+        const g = new THREE.Group(); g.position.set(...pos); g.rotation.z = rot; mitochondria.add(g);
+        const outer = new THREE.Mesh(sphereGeo, defaultMat(0xe59a54, { shininess:50 })); outer.scale.set(.7,.34,.28); g.add(outer);
+        const inner = new THREE.Mesh(sphereGeo, defaultMat(0xf4c37b, { transparent:true, opacity:.5, depthWrite:false })); inner.scale.set(.57,.23,.205); g.add(inner);
+        for (let i=0;i<3;i++) {
+          const y = (i-1)*.09;
+          tube(g, [[-.47,y-.02,.13],[-.28,y+.06,.14],[-.08,y-.06,.14],[.12,y+.06,.14],[.32,y-.04,.13],[.46,y+.03,.1]], 0xffdf9b, .022, .95);
+        }
+      }
+      makeMito([-2.15,1.25,1.2], -.32);
+      makeMito([2.05,.75,-1.48], .65);
+      makeMito([.85,-1.42,1.95], -.2);
+      makeMito([-2.25,-1.25,-1.25], .35);
+
+      const ribosome = addGroup('ribosome', [-1.8,1.05,.35], 8.2);
+      const freeRibosomes = [
+        [-.1,1.7,1.3],[.35,1.45,1.5],[.15,-1.8,.9],[.55,-1.55,1.25],[2.9,.2,.8],[3.2,-.2,.4],
+        [-3.05,.1,.5],[-3.2,-.4,.3],[-1.1,-2.0,.1],[1.0,1.9,-.6],[2.6,1.2,.4],[-.1,2.1,-.5],[2.6,-1.5,-.5],[-3,-1.2,-.9]
+      ];
+      freeRibosomes.forEach(p => { ball(ribosome,p,[.07,.07,.07],0xf4c779,1,8); ball(ribosome,[p[0]+.055,p[1]+.035,p[2]+.015],[.045,.045,.045],0xffe2a2,1,8); });
+
+      const lysosome = addGroup('lysosome', [2.45,1.55,.3], 7.2);
+      [[2.45,1.55,.3,.28],[2.9,-.45,1.45,.2],[.2,-1.85,-1.35,.22],[-2.95,-.8,1.55,.17]].forEach((p,i) => {
+        ball(lysosome,[p[0],p[1],p[2]],[p[3],p[3],p[3]],i%2?0xd77f94:0xe89aaa,1,12);
+        ball(lysosome,[p[0]-.06,p[1]+.06,p[2]+.02],[p[3]*.28,p[3]*.28,p[3]*.28],0xffd1d7,.8,8);
+      });
+
+      const centrosome = addGroup('centrosome', [.8,.4,-2.25], 7.2);
+      cylinder(centrosome,[.72,.4,-2.25],[.22,.68,.22],0xa99ef2,[0,0,.15],9);
+      cylinder(centrosome,[.82,.42,-2.25],[.22,.68,.22],0xc0b4ff,[Math.PI/2,0,.15],9);
+      for(let i=0;i<9;i++) {
+        const a=i*Math.PI*2/9;
+        ball(centrosome,[.72+Math.cos(a)*.105,.4+Math.sin(a)*.105,-2.25],[.035,.035,.035],0xe0d8ff,1,7);
+      }
+
+      const cytoskeleton = addGroup('cytoskeleton', [0,0,0], 11);
+      tube(cytoskeleton,[[-3.9,-.2,0],[-2.5,.9,-1.2],[-.9,1.6,-1.5],[.8,1.2,-1.6],[3.7,.35,-.5]],0x70b6db,.025,.85);
+      tube(cytoskeleton,[[-3.2,-1.8,.5],[-1.6,-1.25,1.1],[.2,-.6,1.4],[2.3,-1.5,1.2],[3.7,-1.4,.4]],0x81c8e5,.022,.8);
+      tube(cytoskeleton,[[-2.9,1.5,-1.5],[-1.4,.7,-2.4],[.2,.1,-2.6],[2.5,.8,-1.7]],0x69a8d0,.025,.82);
+      tube(cytoskeleton,[[-3.8,.4,1.2],[-2.1,-.6,1.6],[-.6,-1.4,2.1],[1.7,-.9,2.2],[3.5,.1,1.4]],0x7bc3e0,.022,.8);
+      tube(cytoskeleton,[[-2.5,2.0,.4],[-1.2,1.7,1.8],[.4,1.9,2.1],[2.3,1.3,1.5]],0x5fa3cc,.022,.78);
+      tube(cytoskeleton,[[0,-2.4,-.5],[.4,-1.5,-1.5],[1.0,-.3,-2.2],[2.2,.8,-2.3]],0x8ccbe3,.02,.8);
+
+      const vesicles = addGroup('vesicles', [1.2,-.2,.95], 8.5);
+      [[-.9,1.55,.5],[.1,1.55,-.2],[.55,.95,.8],[1.1,-.2,.95],[2.4,-.25,.85],[2.9,-1.2,.2],[3.35,-.45,-.6],[1.3,-1.5,1.2]].forEach((p,i) => {
+        ball(vesicles,p,[.12,.12,.12],i%2?0x7bd5b4:0x9be2c0,.95,10);
+      });
+
+      // Nhãn HTML được chiếu từ các tọa độ 3D, không tạo texture chữ trong GPU.
+      const labelData = [
+        ['membrane','Màng sinh chất',[4.25,.55,.2]], ['cytoplasm','Tế bào chất',[3.0,-2.2,1.2]], ['nucleus','Nhân tế bào',[-.5,1.5,.25]],
+        ['nucleolus','Nhân con',[-.8,.55,.95]], ['chromatin','Chất nhiễm sắc',[-1.4,-.2,.55]], ['ribosome','Ribosome',[-2.9,1.25,.35]],
+        ['rer','Lưới nội chất hạt',[-2.45,1.65,-.25]], ['ser','Lưới nội chất trơn',[1.9,.9,-.85]], ['golgi','Bộ máy Golgi',[2.5,-1.65,.7]],
+        ['mitochondria','Ti thể',[-2.45,1.75,1.35]], ['lysosome','Lysosome',[2.85,1.85,.3]], ['centrosome','Trung thể',[1.15,.4,-2.5]],
+        ['cytoskeleton','Khung xương tế bào',[.2,-2.65,-.4]], ['vesicles','Túi vận chuyển',[3.0,-.55,1.1]]
+      ];
+      labelData.forEach(([id,text,pos]) => {
+        const el = document.createElement('button'); el.type='button'; el.className='model-label'; el.textContent=text; el.dataset.organ=id;
+        el.addEventListener('click', e => { e.stopPropagation(); selectOrganelle(id,true); focusOrganelle(id); }); labelLayer.appendChild(el);
+        labelAnchors[id] = { vector:new THREE.Vector3(...pos), element:el };
+      });
+
+      // Marker hoạt hình được tạo một lần, chỉ cập nhật vị trí/kích thước khi phát.
+      const demoRoot = new THREE.Group(); scene.add(demoRoot); demoRoot.visible = false;
+      const demoBall = (color, scale) => { const m = new THREE.Mesh(new THREE.SphereGeometry(1,10,8), defaultMat(color,{shininess:30})); m.scale.setScalar(scale); demoRoot.add(m); return m; };
+      const transportMarker = demoBall(0x94edce,.19);
+      const proteinBeads = Array.from({length:7},(_,i)=>demoBall(i%2?0xffd48d:0xf0b66f,.075));
+      const cargoMarker = demoBall(0xffb58d,.19);
+      const centrosomeLines = [];
+      for(let i=0;i<10;i++) {
+        const a=i*Math.PI*2/10;
+        const geo = new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(.8,.4,-2.25),new THREE.Vector3(.8+Math.cos(a)*1.6,.4+Math.sin(a)*1.6,-2.25+Math.sin(a*2)*.5)]);
+        const mat = new THREE.LineBasicMaterial({color:0xb8adff,transparent:true,opacity:0});
+        const line = new THREE.Line(geo,mat); demoRoot.add(line); centrosomeLines.push(line);
+      }
+      const transportCurve = new THREE.CatmullRomCurve3([new THREE.Vector3(-1.75,1.0,.35),new THREE.Vector3(-.4,.1,.85),new THREE.Vector3(1.5,-.7,.9),new THREE.Vector3(2.15,-.85,.6),new THREE.Vector3(3.9,-.65,.1)]);
+      const proteinCurve = new THREE.CatmullRomCurve3([new THREE.Vector3(-2.2,1.05,.25),new THREE.Vector3(-1.85,1.23,.45),new THREE.Vector3(-1.45,1.05,.5),new THREE.Vector3(-1.1,.9,.6)]);
+      let cameraTargetGoal = null;
+
+      function setGroupHighlight(group, active) {
+        group.traverse(obj => {
+          if (!obj.isMesh || !obj.material || !obj.material.emissive) return;
+          const mat = obj.material;
+          if (mat.userData.baseEmissive === undefined) mat.userData.baseEmissive = mat.emissive.getHex();
+          mat.emissive.setHex(active ? 0x236b73 : mat.userData.baseEmissive);
+        });
+      }
+      function updateHighlights() { Object.entries(groups).forEach(([id,g]) => setGroupHighlight(g,id===selectedId)); }
+      function updateCamera() {
+        phi = Math.max(.35, Math.min(Math.PI-.35, phi)); radius = Math.max(6.2, Math.min(22, radius));
+        camera.position.set(target.x+radius*Math.sin(phi)*Math.sin(theta), target.y+radius*Math.cos(phi), target.z+radius*Math.sin(phi)*Math.cos(theta));
+        camera.lookAt(target);
+      }
+      function renderLabels() {
+        const rect = canvas.getBoundingClientRect();
+        Object.entries(labelAnchors).forEach(([id,info]) => {
+          const p = info.vector.clone().project(camera);
+          const visible = labelsVisible && p.z > -1 && p.z < 1 && Math.abs(p.x)<1.12 && Math.abs(p.y)<1.12;
+          info.element.classList.toggle('hidden',!visible);
+          if (visible) { info.element.style.left = `${(p.x*.5+.5)*rect.width}px`; info.element.style.top = `${(-p.y*.5+.5)*rect.height}px`; }
+        });
+      }
+      function draw() { renderer.render(scene,camera); renderLabels(); }
+      function wakeRender() { if (!raf) raf = requestAnimationFrame(frame); }
+      function frame(now) {
+        raf = 0;
+        // Giới hạn nhịp render khi đang chạy hoạt hình để giảm tải trên máy cấu hình thấp.
+        if ((demoPlaying || tourPlaying || cameraTargetGoal) && lastFrame && now-lastFrame < 1000/40) { raf = requestAnimationFrame(frame); return; }
+        const dt = lastFrame ? Math.min((now-lastFrame)/1000,.05) : 0; lastFrame = now;
+        if (demoPlaying) { demoElapsed += dt*speed; updateDemo(demoElapsed); }
+        if (tourPlaying) { tourTime += dt; updateTour(); }
+        if (cameraTargetGoal) {
+          target.lerp(cameraTargetGoal,.14); if (target.distanceTo(cameraTargetGoal)<.015) cameraTargetGoal=null; updateCamera();
+        }
+        draw();
+        if (demoPlaying || tourPlaying || cameraTargetGoal) raf = requestAnimationFrame(frame);
+      }
+      function resize() {
+        const rect = stageView.getBoundingClientRect(); const w = Math.max(1,rect.width), h = Math.max(1,rect.height);
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,1.35)); renderer.setSize(w,h,false);
+        camera.aspect = w/h; camera.updateProjectionMatrix(); wakeRender();
+      }
+      function updateLabelVisibility() { labelLayer.querySelectorAll('.model-label').forEach(el => el.classList.toggle('hidden',!labelsVisible)); }
+      function setMembrane(value) { membraneVisible = value; cellShell.visible = value; wakeRender(); }
+      function resetView() { theta=.22; phi=Math.PI/2.06; radius=13.2; cameraTargetGoal=null; target.set(0,0,0); updateCamera(); wakeRender(); }
+      function focusOrganelle(id) {
+        const f = focusPositions[id]; if (!f) return;
+        radius = f.dist; cameraTargetGoal = f.point.clone(); wakeRender();
+      }
+      function zoomCamera(multiplier) { radius *= multiplier; updateCamera(); wakeRender(); }
+      function updateDemo(t) {
+        const phase = (t % 9) / 9;
+        demoRoot.visible = true;
+        mitochondria.scale.setScalar(activeDemo==='mitochondria' ? 1 + .012*Math.sin(t*2.4) : 1);
+        transportMarker.visible = activeDemo==='transport';
+        proteinBeads.forEach((m,i) => {
+          m.visible = activeDemo==='protein' && i < Math.floor(phase*8)+1;
+          const p = proteinCurve.getPoint(Math.min(1,(i/7)*.9 + phase*.08)); m.position.copy(p);
+        });
+        if (activeDemo==='transport') transportMarker.position.copy(transportCurve.getPoint(phase));
+        cargoMarker.visible = activeDemo==='lysosome';
+        if (activeDemo==='lysosome') {
+          const a = new THREE.Vector3(.5,2.05,1.4), b = new THREE.Vector3(2.42,1.55,.35);
+          cargoMarker.position.copy(a.lerp(b,Math.min(1,phase*1.15)));
+          const s = Math.max(.035,.19*(1-Math.max(0,phase-.72)*2.8)); cargoMarker.scale.setScalar(s);
+        }
+        centrosomeLines.forEach(line => { line.visible = activeDemo==='centrosome'; line.material.opacity = activeDemo==='centrosome' ? Math.min(.9,phase*1.8) : 0; });
+        if (activeDemo!=='mitochondria') mitochondria.scale.setScalar(1);
+      }
+      function stopDemo() { demoPlaying=false; demoRoot.visible=false; mitochondria.scale.setScalar(1); wakeRender(); }
+      function startDemo(restart=false) {
+        tourPlaying=false; $('playTourBtn').textContent='▶ Phát';
+        if (restart || activeDemo !== $('activitySelect').value) demoElapsed=0;
+        activeDemo=$('activitySelect').value; const config=activities[activeDemo];
+        selectOrganelle(config.focus); focusOrganelle(config.focus);
+        $('activityDescription').textContent=config.description; demoPlaying=true; updateDemo(demoElapsed); wakeRender();
+      }
+      function updateTourUI() {
+        const idx=Math.min(tourScenes.length-1,Math.floor(tourTime/25)); const sc=tourScenes[idx];
+        $('tourSceneNumber').textContent=`CẢNH ${String(idx+1).padStart(2,'0')} / 08`;
+        $('tourTitle').textContent=sc.title; $('tourSubtitle').textContent=sc.subtitle;
+        const pct=Math.min(100,(tourTime/(tourScenes.length*25))*100); $('tourProgress').style.width=`${pct}%`;
+        $('tourProgressWrap').setAttribute('aria-valuenow',String(Math.round(pct)));
+        if (idx !== currentTourScene) { currentTourScene=idx; selectOrganelle(sc.focus); focusOrganelle(sc.focus); }
+      }
+      let currentTourScene=-1;
+      function updateTour() { if (tourTime >= tourScenes.length*25) { tourTime=tourScenes.length*25; tourPlaying=false; $('playTourBtn').textContent='▶ Phát lại'; } updateTourUI(); }
+      function playTour() { stopDemo(); if (tourTime >= 200) tourTime=0; tourPlaying=true; $('playTourBtn').textContent='Ⅱ Tạm dừng'; updateTour(); wakeRender(); }
+      function pauseTour() { tourPlaying=false; $('playTourBtn').textContent='▶ Tiếp tục'; wakeRender(); }
+      function stepTour(delta) { tourPlaying=false; tourTime=Math.max(0,Math.min(199.9,(Math.floor(tourTime/25)+delta)*25)); $('playTourBtn').textContent='▶ Phát'; updateTourUI(); wakeRender(); }
+
+      // Xoay mô hình bằng pointer events để tránh phụ thuộc thêm thư viện điều khiển.
+      canvas.addEventListener('pointerdown', e => { dragging=true; pointerMoved=false; dragStart={x:e.clientX,y:e.clientY,theta,phi}; canvas.setPointerCapture(e.pointerId); });
+      canvas.addEventListener('pointermove', e => {
+        if (!dragging || !dragStart) return;
+        const dx=e.clientX-dragStart.x, dy=e.clientY-dragStart.y; if (Math.abs(dx)+Math.abs(dy)>4) pointerMoved=true;
+        theta=dragStart.theta-dx*.006; phi=dragStart.phi-dy*.006; updateCamera(); wakeRender();
+      });
+      canvas.addEventListener('pointerup', e => {
+        dragging=false;
+        if (!pointerMoved) {
+          const rect=canvas.getBoundingClientRect(); pointer.x=((e.clientX-rect.left)/rect.width)*2-1; pointer.y=-((e.clientY-rect.top)/rect.height)*2+1;
+          raycaster.setFromCamera(pointer,camera); const hits=raycaster.intersectObjects(clickableRoots,true).filter(hit=>!hit.object.userData.noPick);
+          if (hits.length) {
+            let node=hits[0].object; while(node && !node.userData.organelleId) node=node.parent;
+            if(node && node.userData.organelleId) { selectOrganelle(node.userData.organelleId,true); }
+          }
+        }
+        dragStart=null;
+      });
+      canvas.addEventListener('pointercancel', () => { dragging=false; dragStart=null; });
+      canvas.addEventListener('wheel', e => { e.preventDefault(); zoomCamera(e.deltaY>0?1.07:.93); }, {passive:false});
+
+      window.addEventListener('resize', resize);
+      if ('ResizeObserver' in window) new ResizeObserver(resize).observe(stageView);
+      updateCamera(); updateHighlights(); resize(); updateLabelVisibility(); window.cellModelReady=true;
+      window.organelleGroups=groups; window.wakeCellRender=wakeRender;
+      renderInfo(selectedId);
+
+      // Nối các điều khiển được khai báo trong giao diện.
+      $('playDemoBtn').addEventListener('click',()=>startDemo(false));
+      $('pauseDemoBtn').addEventListener('click',()=>{demoPlaying=false;wakeRender();});
+      $('replayDemoBtn').addEventListener('click',()=>startDemo(true));
+      $('activitySelect').addEventListener('change',()=>{activeDemo=$('activitySelect').value;demoElapsed=0;stopDemo();$('activityDescription').textContent=activities[activeDemo].description;selectOrganelle(activities[activeDemo].focus);});
+      $('speedSelect').addEventListener('change',e=>{speed=Number(e.target.value)||1;});
+      $('activityTab').addEventListener('click',()=>{
+        $('activityTab').classList.add('active');$('tourTab').classList.remove('active');$('activityPanel').hidden=false;$('tourPanel').hidden=true;pauseTour();
+      });
+      $('tourTab').addEventListener('click',()=>{
+        $('tourTab').classList.add('active');$('activityTab').classList.remove('active');$('tourPanel').hidden=false;$('activityPanel').hidden=true;stopDemo();
+        if(currentTourScene<0) updateTourUI();
+      });
+      $('playTourBtn').addEventListener('click',()=>tourPlaying?pauseTour():playTour());
+      $('prevSceneBtn').addEventListener('click',()=>stepTour(-1)); $('nextSceneBtn').addEventListener('click',()=>stepTour(1));
+      $('tourProgressWrap').addEventListener('click',e=>{const r=e.currentTarget.getBoundingClientRect();tourTime=Math.max(0,Math.min(199.9,((e.clientX-r.left)/r.width)*200));tourPlaying=false;$('playTourBtn').textContent='▶ Phát';updateTourUI();wakeRender();});
+      $('tourProgressWrap').addEventListener('keydown',e=>{if(e.key==='ArrowRight'){stepTour(1);e.preventDefault();}if(e.key==='ArrowLeft'){stepTour(-1);e.preventDefault();}});
+      // Export nội bộ để các công tắc chung sử dụng cùng trạng thái mô hình.
+      window.cellSetMembrane=setMembrane;
+      window.cellResetView=resetView;
+      window.cellFocus=focusOrganelle;
+    }
+
+    function setGroupHighlight(group, active) {
+      if (!group || !group.traverse) return;
+      group.traverse(obj => {
+        if (!obj.isMesh || !obj.material || !obj.material.emissive) return;
+        const mat=obj.material; if(mat.userData.baseEmissive===undefined) mat.userData.baseEmissive=mat.emissive.getHex();
+        mat.emissive.setHex(active?0x236b73:mat.userData.baseEmissive);
+      });
+    }
+    function updateLabelVisibility() { labelLayer.querySelectorAll('.model-label').forEach(el=>el.classList.toggle('hidden',!labelsVisible)); }
+    function setMembrane(value) { membraneVisible=value; if(window.cellSetMembrane) window.cellSetMembrane(value); }
+    function wakeRender() { if(window.wakeCellRender) window.wakeCellRender(); }
+    function focusOrganelle(id) { if(window.cellFocus) window.cellFocus(id); }
+    function resetView() { if(window.cellResetView) window.cellResetView(); }
+
+    $('helpBtn').addEventListener('click',()=>$('guideDialog').showModal());
+    $('closeGuideBtn').addEventListener('click',()=>$('guideDialog').close());
+    $('guideDialog').addEventListener('click',e=>{if(e.target===$('guideDialog'))$('guideDialog').close();});
+    $('fullscreenBtn').addEventListener('click',async()=>{
+      try { if(!document.fullscreenElement) await document.documentElement.requestFullscreen(); else await document.exitFullscreen(); }
+      catch { toast('Trình duyệt không cho phép chế độ toàn màn hình.'); }
+    });
+    document.addEventListener('fullscreenchange',()=>{ $('fullscreenBtn').innerHTML=document.fullscreenElement?'⛶ <span>Thoát toàn màn hình</span>':'⛶ <span>Toàn màn hình</span>'; wakeRender(); });
+  })();
+  </script>
+</body>
+</html>
